@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #ffffff;
+  --color-bg-soft: #f7f8f4;
+  --color-sage: #a4b089;
+  --color-sage-deep: #6b7a54;
+  --color-forest: #3d4a31;
+  --color-clay: #c98b5b;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-forest);
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-clay);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Signature: hand-drawn style vine divider between sections */
+.vine-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+/* Leaf-burst click effect — see components/LeafClickBurst.tsx */
+@keyframes leaf-burst {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(calc(var(--rotation) * 0.3))
+      scale(var(--scale));
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      rotate(var(--rotation)) scale(var(--scale));
+    opacity: 0;
+  }
+}
+
+.leaf-burst-particle {
+  animation: leaf-burst 0.7s ease-out forwards;
+}
