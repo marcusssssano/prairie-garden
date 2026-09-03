@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import MelinaGuide from "@/components/MelinaGuide";
+
+// How long to keep auto-checking a still-pending order before giving up
+// and falling back to "refresh the page" — the webhook is usually done
+// within a second or two, this just covers the slow/retry cases.
+const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_ATTEMPTS = 15;
 
 type OrderItem = {
   plant_id: string;
@@ -37,6 +43,28 @@ export default function OrderConfirmationPage() {
   const [loading, setLoading] = useState(false);
   const [emailInput, setEmailInput] = useState("");
 
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function stopPolling() {
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
+    }
+  }
+
+  function pollWhilePending(fetcher: () => Promise<Order | null>, attempt = 0) {
+    stopPolling();
+    if (attempt >= MAX_POLL_ATTEMPTS) return;
+    pollTimeoutRef.current = setTimeout(async () => {
+      const result = await fetcher();
+      if (!result) return;
+      setOrder(result);
+      if (result.status === "pending") {
+        pollWhilePending(fetcher, attempt + 1);
+      }
+    }, POLL_INTERVAL_MS);
+  }
+
   async function lookupOrder(email: string) {
     setLoading(true);
     setError(null);
@@ -52,6 +80,16 @@ export default function OrderConfirmationPage() {
         setOrder(null);
       } else {
         setOrder(data);
+        if (data.status === "pending") {
+          pollWhilePending(async () => {
+            const r = await fetch(`/api/orders/${params.id}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+            });
+            return r.ok ? ((await r.json()) as Order) : null;
+          });
+        }
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -65,11 +103,16 @@ export default function OrderConfirmationPage() {
       // If we're logged in and it's our order, RLS lets us fetch it
       // directly with no email needed.
       setLoading(true);
-      try {
+      const sessionFetcher = async () => {
         const response = await fetch(`/api/orders/${params.id}`);
-        if (response.ok) {
-          setOrder(await response.json());
+        return response.ok ? ((await response.json()) as Order) : null;
+      };
+      try {
+        const result = await sessionFetcher();
+        if (result) {
+          setOrder(result);
           setLoading(false);
+          if (result.status === "pending") pollWhilePending(sessionFetcher);
           return;
         }
       } catch {
@@ -85,6 +128,7 @@ export default function OrderConfirmationPage() {
       }
     }
     initialLookup();
+    return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
@@ -146,8 +190,8 @@ export default function OrderConfirmationPage() {
       </h1>
       {!isPaid && !isCancelled && (
         <p className="mt-2 font-body text-sm text-forest/60">
-          This can take a few seconds — refresh the page if it doesn&apos;t
-          update.
+          This usually only takes a second or two — this page updates on
+          its own, no need to refresh.
         </p>
       )}
       {isCancelled && (
