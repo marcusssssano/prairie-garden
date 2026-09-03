@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Plant } from "@/lib/types";
 import {
   useCartStore,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/store/cart";
 
 export default function AddToCartControl({ plant }: { plant: Plant }) {
+  const router = useRouter();
   const outOfStock = plant.stock <= 0;
   const addItem = useCartStore((state) => state.addItem);
   const quantityInCart = useCartStore(
@@ -28,7 +30,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
     setQuantity((q) => Math.min(Math.max(q, 1), Math.max(roomLeft, 1)));
   }, [roomLeft]);
 
-  function handleAddToCart() {
+  function addToCart() {
     addItem(
       {
         plantId: plant.id,
@@ -39,9 +41,21 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
       },
       quantity
     );
+  }
+
+  function handleAddToCart() {
+    addToCart();
     setJustAdded(true);
     setQuantity(1);
     setTimeout(() => setJustAdded(false), 1500);
+  }
+
+  // Adds this item like normal, then goes straight to checkout with
+  // whatever's currently selected — doesn't touch or clear anything else
+  // already sitting in the cart.
+  function handleBuyNow() {
+    addToCart();
+    router.push("/checkout");
   }
 
   if (outOfStock) {
@@ -71,7 +85,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -106,13 +120,22 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
           +
         </button>
       </div>
-      <button
-        type="button"
-        onClick={handleAddToCart}
-        className="flex-1 rounded-full bg-clay px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
-      >
-        {justAdded ? "Added ✓" : "Add to cart"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className="flex-1 rounded-full border border-sage-deep px-6 py-3 font-body text-sm font-medium text-sage-deep transition-colors hover:bg-sage-deep hover:text-white"
+        >
+          {justAdded ? "Added ✓" : "Add to cart"}
+        </button>
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          className="flex-1 rounded-full bg-clay px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
+        >
+          Buy now
+        </button>
+      </div>
     </div>
   );
 }

@@ -40,7 +40,11 @@ export default function OrderConfirmationPage() {
   const params = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts true — we always try to auto-locate the order (via session, or
+  // a stored guest email) before ever showing the manual "enter your
+  // email" form, so the very first render should be a neutral loading
+  // state, not that form flashing on screen.
+  const [loading, setLoading] = useState(true);
   const [emailInput, setEmailInput] = useState("");
 
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -118,19 +122,40 @@ export default function OrderConfirmationPage() {
       } catch {
         // fall through to the guest-email path below
       }
-      setLoading(false);
 
       const storedEmail = sessionStorage.getItem(
         "prairie-garden-checkout-email"
       );
       if (storedEmail) {
-        lookupOrder(storedEmail);
+        // lookupOrder manages its own loading state, ending with
+        // setLoading(false) once it resolves — staying "loading" the
+        // whole way through avoids a flash of the manual email form in
+        // between this session check failing and that lookup finishing.
+        await lookupOrder(storedEmail);
+      } else {
+        setLoading(false);
       }
     }
     initialLookup();
     return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
+
+  if (!order && loading) {
+    // Neutral placeholder while we try to auto-locate the order (session,
+    // then a stored guest email) — the manual lookup form below is a
+    // fallback for once both of those have been tried and failed, not
+    // the default first thing a real customer sees.
+    return (
+      <main className="mx-auto max-w-md px-6 py-20 text-center">
+        <MelinaGuide
+          pose="thinking"
+          message="One moment — pulling up your order…"
+          className="justify-center"
+        />
+      </main>
+    );
+  }
 
   if (!order) {
     return (
