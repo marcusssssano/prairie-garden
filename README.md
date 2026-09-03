@@ -3,6 +3,11 @@
 A calm, natury plant shop — Next.js + Supabase + Stripe (test mode), built
 as a portfolio project.
 
+Deliberately scoped as a Philippines-only shop (₱ pricing, PH shipping
+address only) rather than a fake "ships anywhere" storefront with no real
+currency, tax, or shipping-zone logic behind it — a small regional business
+is a more honest shape for a project this size than pretending to be global.
+
 ## Stack
 
 - **Next.js 14** (App Router) — deployed on Vercel

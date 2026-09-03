@@ -13,6 +13,9 @@ export default function SiteFooter() {
               Slow-grown houseplants, picked for people who want green
               without the guesswork.
             </p>
+            <p className="mt-3 font-body text-xs text-bg/40">
+              Currently shipping within the Philippines only.
+            </p>
             <div className="mt-4 flex gap-4 font-mono text-xs uppercase tracking-wide text-bg/60">
               <span>Instagram</span>
               <span>Pinterest</span>
