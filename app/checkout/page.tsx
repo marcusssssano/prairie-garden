@@ -82,7 +82,7 @@ function CheckoutForm() {
             email,
             shippingAddress: {
               fullName,
-              phone,
+              phone: `+63${phone}`,
               line1,
               line2: line2 || undefined,
               city,
@@ -183,14 +183,29 @@ function CheckoutForm() {
             </label>
             <label className="block font-body text-sm text-forest/70 sm:col-span-2">
               Phone
-              <input
-                type="tel"
-                required
-                maxLength={20}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
-              />
+              <div className="mt-1 flex items-stretch overflow-hidden rounded-lg border border-forest/20 bg-bg focus-within:border-sage-deep">
+                <span className="flex items-center border-r border-forest/20 bg-bg-soft px-3 font-mono text-sm text-forest/60">
+                  +63
+                </span>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  required
+                  placeholder="9XX XXX XXXX"
+                  pattern="9[0-9]{9}"
+                  title="A 10-digit PH mobile number starting with 9 (e.g. 9171234567)"
+                  maxLength={10}
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
+                  className="w-full bg-transparent px-3 py-2 font-body text-sm text-forest focus:outline-none"
+                />
+              </div>
+              <span className="mt-1 block font-body text-xs text-forest/50">
+                Your delivery rider will use this to reach you — needs to be
+                a PH mobile number.
+              </span>
             </label>
             <label className="block font-body text-sm text-forest/70 sm:col-span-2">
               Address line 1

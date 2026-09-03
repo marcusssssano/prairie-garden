@@ -25,6 +25,12 @@ function isBoundedString(value: unknown, maxLength: number, required = true) {
   return value.length <= maxLength;
 }
 
+// A PH mobile number in E.164 form: +63 followed by a 10-digit local
+// number starting with 9 (e.g. +639171234567). This is what actually
+// matters here — the shipping phone is for a courier to call, not a
+// billing contact, so it needs to be a real, dialable PH mobile number.
+const PH_MOBILE_PATTERN = /^\+639\d{9}$/;
+
 function isValidShippingAddress(value: unknown): value is ShippingAddress {
   if (!value || typeof value !== "object") return false;
   const a = value as Record<string, unknown>;
@@ -36,7 +42,8 @@ function isValidShippingAddress(value: unknown): value is ShippingAddress {
     isBoundedString(a.province, 100) &&
     isBoundedString(a.postalCode, 20) &&
     isBoundedString(a.country, 100) &&
-    isBoundedString(a.phone, 20)
+    typeof a.phone === "string" &&
+    PH_MOBILE_PATTERN.test(a.phone)
   );
 }
 
