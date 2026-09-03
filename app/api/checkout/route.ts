@@ -15,24 +15,28 @@ type ShippingAddress = {
   phone: string;
 };
 
+// Mirrors the maxLength attributes on the checkout form — those are just
+// UX, this is the actual enforcement, since anyone can call this route
+// directly with whatever they want in the body.
+function isBoundedString(value: unknown, maxLength: number, required = true) {
+  if (typeof value !== "string") return !required && value === undefined;
+  const trimmed = value.trim();
+  if (required && trimmed.length === 0) return false;
+  return value.length <= maxLength;
+}
+
 function isValidShippingAddress(value: unknown): value is ShippingAddress {
   if (!value || typeof value !== "object") return false;
   const a = value as Record<string, unknown>;
   return (
-    typeof a.fullName === "string" &&
-    a.fullName.trim().length > 0 &&
-    typeof a.line1 === "string" &&
-    a.line1.trim().length > 0 &&
-    typeof a.city === "string" &&
-    a.city.trim().length > 0 &&
-    typeof a.province === "string" &&
-    a.province.trim().length > 0 &&
-    typeof a.postalCode === "string" &&
-    a.postalCode.trim().length > 0 &&
-    typeof a.country === "string" &&
-    a.country.trim().length > 0 &&
-    typeof a.phone === "string" &&
-    a.phone.trim().length > 0
+    isBoundedString(a.fullName, 100) &&
+    isBoundedString(a.line1, 200) &&
+    isBoundedString(a.line2, 200, false) &&
+    isBoundedString(a.city, 100) &&
+    isBoundedString(a.province, 100) &&
+    isBoundedString(a.postalCode, 20) &&
+    isBoundedString(a.country, 100) &&
+    isBoundedString(a.phone, 20)
   );
 }
 
@@ -56,6 +60,7 @@ export async function POST(request: Request) {
   if (
     !email ||
     typeof email !== "string" ||
+    email.length > 254 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   ) {
     return NextResponse.json(

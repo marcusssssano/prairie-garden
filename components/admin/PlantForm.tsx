@@ -33,6 +33,7 @@ export default function PlantForm({ plant }: { plant?: Plant }) {
           type="text"
           name="name"
           required
+          maxLength={100}
           defaultValue={plant?.name}
           className={inputClass}
         />
@@ -43,6 +44,7 @@ export default function PlantForm({ plant }: { plant?: Plant }) {
         <textarea
           name="description"
           rows={3}
+          maxLength={2000}
           defaultValue={plant?.description ?? ""}
           className={inputClass}
         />
@@ -145,6 +147,7 @@ export default function PlantForm({ plant }: { plant?: Plant }) {
         <input
           type="text"
           name="image_url"
+          maxLength={500}
           placeholder="/plants/golden-pothos-1.jpg"
           defaultValue={plant?.image_url ?? ""}
           className={inputClass}
@@ -160,6 +163,7 @@ export default function PlantForm({ plant }: { plant?: Plant }) {
         <textarea
           name="image_urls"
           rows={4}
+          maxLength={3000}
           placeholder={"/plants/golden-pothos-1.jpg\n/plants/golden-pothos-2.jpg"}
           defaultValue={plant?.image_urls?.join("\n") ?? ""}
           className={`${inputClass} font-mono text-xs`}

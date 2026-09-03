@@ -157,6 +157,7 @@ function CheckoutForm() {
             <input
               type="email"
               required
+              maxLength={254}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -174,6 +175,7 @@ function CheckoutForm() {
               <input
                 type="text"
                 required
+                maxLength={100}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -184,6 +186,7 @@ function CheckoutForm() {
               <input
                 type="tel"
                 required
+                maxLength={20}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -194,6 +197,7 @@ function CheckoutForm() {
               <input
                 type="text"
                 required
+                maxLength={200}
                 value={line1}
                 onChange={(e) => setLine1(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -203,6 +207,7 @@ function CheckoutForm() {
               Address line 2 (optional)
               <input
                 type="text"
+                maxLength={200}
                 value={line2}
                 onChange={(e) => setLine2(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -213,6 +218,7 @@ function CheckoutForm() {
               <input
                 type="text"
                 required
+                maxLength={100}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -223,6 +229,7 @@ function CheckoutForm() {
               <input
                 type="text"
                 required
+                maxLength={100}
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
@@ -233,6 +240,7 @@ function CheckoutForm() {
               <input
                 type="text"
                 required
+                maxLength={20}
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"

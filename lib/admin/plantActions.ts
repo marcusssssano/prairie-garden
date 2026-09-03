@@ -42,11 +42,21 @@ function parsePlantForm(formData: FormData) {
     .filter(Boolean);
 
   if (!name) throw new Error("Name is required.");
+  if (name.length > 100) throw new Error("Name must be 100 characters or fewer.");
+  if (description.length > 2000) {
+    throw new Error("Description must be 2000 characters or fewer.");
+  }
   if (!Number.isFinite(priceCents) || priceCents < 0) {
     throw new Error("Price must be a valid, non-negative amount.");
   }
   if (!Number.isInteger(stock) || stock < 0) {
     throw new Error("Stock must be a valid, non-negative whole number.");
+  }
+  if (imageUrl.length > 500) {
+    throw new Error("Cover photo path must be 500 characters or fewer.");
+  }
+  if (imageUrls.some((url) => url.length > 500)) {
+    throw new Error("Each gallery photo path must be 500 characters or fewer.");
   }
 
   return {
