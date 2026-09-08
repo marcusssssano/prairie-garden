@@ -22,12 +22,16 @@ export default function ForgotPasswordPage() {
         { redirectTo: `${window.location.origin}/reset-password` }
       );
 
-      // Deliberately shown even on error — confirming or denying whether
-      // an email address has an account here would let this form be used
-      // to check who's signed up. Real delivery failures (bad SMTP, rate
-      // limits) are rare enough that this tradeoff is worth it.
-      if (resetError) {
-        // no-op — see comment above
+      // A transient system error (rate limit, mail server down) says
+      // nothing about whether this specific email has an account, so it's
+      // safe to surface honestly — unlike "no account found", which stays
+      // hidden behind the generic "check your inbox" below so this form
+      // can't be used to check who's signed up.
+      if (resetError?.status && (resetError.status === 429 || resetError.status >= 500)) {
+        setError(
+          "We couldn't send that right now — too many requests recently. Please wait a bit and try again."
+        );
+        return;
       }
       setSent(true);
     } catch {
