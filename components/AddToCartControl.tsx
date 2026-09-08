@@ -8,6 +8,7 @@ import {
   cartTotalItems,
   maxQuantityForItem,
 } from "@/lib/store/cart";
+import { setBuyNowItem } from "@/lib/buyNow";
 
 export default function AddToCartControl({ plant }: { plant: Plant }) {
   const router = useRouter();
@@ -50,11 +51,19 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
     setTimeout(() => setJustAdded(false), 1500);
   }
 
-  // Adds this item like normal, then goes straight to checkout with
-  // whatever's currently selected — doesn't touch or clear anything else
-  // already sitting in the cart.
+  // Deliberately does NOT touch the shared cart — checking out "this one
+  // plant, this quantity" should never pull in whatever else happens to
+  // already be sitting (and selected) in the cart. The checkout page
+  // reads this back as a one-time, standalone purchase.
   function handleBuyNow() {
-    addToCart();
+    setBuyNowItem({
+      plantId: plant.id,
+      name: plant.name,
+      price_cents: plant.price_cents,
+      image_url: plant.image_url,
+      stock: plant.stock,
+      quantity,
+    });
     router.push("/checkout");
   }
 

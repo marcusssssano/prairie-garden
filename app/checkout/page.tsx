@@ -1,16 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
   useCartStore,
   cartTotalCents,
   selectedCartItems,
+  type CartItem,
 } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/format";
 import { getStripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/client";
+import { takeBuyNowItem } from "@/lib/buyNow";
 
 const cardElementOptions = {
   style: {
@@ -30,7 +32,32 @@ function CheckoutForm() {
   const elements = useElements();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
-  const selected = selectedCartItems(items);
+
+  // A "Buy now" purchase is a standalone item, completely separate from
+  // whatever's selected in the cart — takeBuyNowItem() is one-time-use
+  // (clears itself on read), so this only ever applies to the checkout
+  // load that immediately follows clicking Buy now.
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null | undefined>(
+    undefined
+  );
+  // takeBuyNowItem() clears sessionStorage as it reads — not safe to call
+  // twice. React's Strict Mode intentionally double-invokes effects in
+  // dev, and a second call would find nothing and overwrite the correct
+  // result with null, so this ref makes sure only the first call counts.
+  const buyNowConsumedRef = useRef(false);
+  useEffect(() => {
+    if (buyNowConsumedRef.current) return;
+    buyNowConsumedRef.current = true;
+    const item = takeBuyNowItem();
+    setBuyNowItem(item ? { ...item, selected: true } : null);
+  }, []);
+
+  const selected =
+    buyNowItem === undefined
+      ? [] // still checking sessionStorage — don't show the cart yet
+      : buyNowItem
+        ? [buyNowItem]
+        : selectedCartItems(items);
   const subtotalCents = cartTotalCents(selected);
 
   const [email, setEmail] = useState("");
@@ -128,7 +155,12 @@ function CheckoutForm() {
       }
 
       if (paymentIntent?.status === "succeeded") {
-        selected.forEach((item) => removeItem(item.plantId));
+        // A Buy now purchase was never in the cart, so there's nothing to
+        // remove from it — clearing by plantId here would risk wiping out
+        // an unrelated, separately-added cart entry for the same plant.
+        if (!buyNowItem) {
+          selected.forEach((item) => removeItem(item.plantId));
+        }
         sessionStorage.setItem("prairie-garden-checkout-email", email);
         router.push(`/order-confirmation/${checkoutSession.orderId}`);
       }
@@ -136,6 +168,12 @@ function CheckoutForm() {
       setError("Something went wrong. Please try again.");
       setSubmitting(false);
     }
+  }
+
+  if (buyNowItem === undefined) {
+    // Briefly checking sessionStorage for a pending Buy now item — avoids
+    // flashing "no items selected" for cart checkouts that do have items.
+    return null;
   }
 
   if (selected.length === 0) {
