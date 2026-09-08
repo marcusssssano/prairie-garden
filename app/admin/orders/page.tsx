@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
@@ -15,19 +16,53 @@ type AdminOrderRow = {
   }[];
 };
 
-export default async function AdminOrdersPage() {
+const STATUS_FILTERS = ["all", "pending", "paid", "fulfilled", "cancelled"] as const;
+
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status: statusParam } = await searchParams;
+  const activeFilter = STATUS_FILTERS.includes(
+    statusParam as (typeof STATUS_FILTERS)[number]
+  )
+    ? (statusParam as (typeof STATUS_FILTERS)[number])
+    : "all";
+
   const supabase = await createClient();
-  const { data: orders, error } = await supabase
+  let query = supabase
     .from("orders")
     .select(
       "id, status, total_cents, guest_email, user_id, created_at, order_items(quantity, plants(name))"
     )
-    .order("created_at", { ascending: false })
-    .returns<AdminOrderRow[]>();
+    .order("created_at", { ascending: false });
+
+  if (activeFilter !== "all") {
+    query = query.eq("status", activeFilter);
+  }
+
+  const { data: orders, error } = await query.returns<AdminOrderRow[]>();
 
   return (
     <div>
       <h1 className="font-display text-2xl italic text-forest">Orders</h1>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {STATUS_FILTERS.map((status) => (
+          <Link
+            key={status}
+            href={status === "all" ? "/admin/orders" : `/admin/orders?status=${status}`}
+            className={`rounded-full border px-3 py-1.5 font-body text-sm capitalize transition-colors ${
+              activeFilter === status
+                ? "border-sage-deep bg-sage-deep text-white"
+                : "border-forest/15 bg-bg text-forest/70 hover:border-sage-deep hover:text-forest"
+            }`}
+          >
+            {status}
+          </Link>
+        ))}
+      </div>
 
       {error && (
         <p className="mt-6 font-body text-sm text-clay">
@@ -37,7 +72,9 @@ export default async function AdminOrdersPage() {
 
       {!error && orders && orders.length === 0 && (
         <p className="mt-6 font-body text-sm text-forest/60">
-          No orders yet.
+          {activeFilter === "all"
+            ? "No orders yet."
+            : `No ${activeFilter} orders.`}
         </p>
       )}
 

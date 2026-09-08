@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import LeafClickBurst from "@/components/LeafClickBurst";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -39,10 +36,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${inter.variable} ${plexMono.variable} flex min-h-screen flex-col font-body`}
       >
-        <SiteHeader />
-        <div className="flex-1">{children}</div>
-        <SiteFooter />
-        <LeafClickBurst />
+        {children}
       </body>
     </html>
   );

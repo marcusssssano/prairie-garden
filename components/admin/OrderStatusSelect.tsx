@@ -8,7 +8,7 @@ const STATUSES = ["pending", "paid", "fulfilled", "cancelled"];
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-forest/10 text-forest/60",
   paid: "bg-sage-deep/15 text-sage-deep",
-  fulfilled: "bg-sage-deep/15 text-sage-deep",
+  fulfilled: "bg-forest/80 text-white",
   cancelled: "bg-clay/15 text-clay",
 };
 

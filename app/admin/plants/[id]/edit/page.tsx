@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Plant } from "@/lib/types";
@@ -22,7 +23,13 @@ export default async function EditPlantPage({
 
   return (
     <div>
-      <h1 className="font-display text-2xl italic text-forest">
+      <Link
+        href="/admin/plants"
+        className="font-body text-sm text-forest/60 transition-colors hover:text-forest"
+      >
+        ← Back to plants
+      </Link>
+      <h1 className="mt-2 font-display text-2xl italic text-forest">
         Edit {plant.name}
       </h1>
       <div className="mt-6">

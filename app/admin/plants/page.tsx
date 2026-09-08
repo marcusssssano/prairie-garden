@@ -73,7 +73,11 @@ export default async function AdminPlantsPage() {
                   </td>
                   <td className="px-4 py-3 font-mono text-forest/70">
                     {plant.stock <= 0 ? (
-                      <span className="text-clay">0</span>
+                      <span className="font-medium text-clay">0</span>
+                    ) : plant.stock <= 5 ? (
+                      <span className="font-medium text-clay">
+                        {plant.stock}
+                      </span>
                     ) : (
                       plant.stock
                     )}
