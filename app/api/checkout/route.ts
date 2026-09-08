@@ -31,6 +31,10 @@ function isBoundedString(value: unknown, maxLength: number, required = true) {
 // billing contact, so it needs to be a real, dialable PH mobile number.
 const PH_MOBILE_PATTERN = /^\+639\d{9}$/;
 
+// PH postal codes are exactly 4 digits (e.g. 1100, 4108) — not just "some
+// non-empty string", which is all the old bounded-length check verified.
+const PH_POSTAL_CODE_PATTERN = /^\d{4}$/;
+
 function isValidShippingAddress(value: unknown): value is ShippingAddress {
   if (!value || typeof value !== "object") return false;
   const a = value as Record<string, unknown>;
@@ -40,7 +44,8 @@ function isValidShippingAddress(value: unknown): value is ShippingAddress {
     isBoundedString(a.line2, 200, false) &&
     isBoundedString(a.city, 100) &&
     isBoundedString(a.province, 100) &&
-    isBoundedString(a.postalCode, 20) &&
+    typeof a.postalCode === "string" &&
+    PH_POSTAL_CODE_PATTERN.test(a.postalCode) &&
     isBoundedString(a.country, 100) &&
     typeof a.phone === "string" &&
     PH_MOBILE_PATTERN.test(a.phone)

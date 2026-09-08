@@ -292,10 +292,16 @@ function CheckoutForm() {
               Postal code
               <input
                 type="text"
+                inputMode="numeric"
                 required
-                maxLength={20}
+                maxLength={4}
+                pattern="\d{4}"
+                title="A 4-digit PH postal code (e.g. 1100)"
+                placeholder="1100"
                 value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
+                onChange={(e) =>
+                  setPostalCode(e.target.value.replace(/\D/g, "").slice(0, 4))
+                }
                 className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
               />
             </label>
