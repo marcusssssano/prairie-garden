@@ -9,6 +9,8 @@ import {
   maxQuantityForItem,
 } from "@/lib/store/cart";
 import { setBuyNowItem } from "@/lib/buyNow";
+import { formatPrice } from "@/lib/format";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AddToCartControl({ plant }: { plant: Plant }) {
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
 
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const [confirmingBuyNow, setConfirmingBuyNow] = useState(false);
 
   useEffect(() => {
     setQuantity((q) => Math.min(Math.max(q, 1), Math.max(roomLeft, 1)));
@@ -55,7 +58,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
   // plant, this quantity" should never pull in whatever else happens to
   // already be sitting (and selected) in the cart. The checkout page
   // reads this back as a one-time, standalone purchase.
-  function handleBuyNow() {
+  function confirmBuyNow() {
     setBuyNowItem({
       plantId: plant.id,
       name: plant.name,
@@ -64,6 +67,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
       stock: plant.stock,
       quantity,
     });
+    setConfirmingBuyNow(false);
     router.push("/checkout");
   }
 
@@ -139,12 +143,21 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
         </button>
         <button
           type="button"
-          onClick={handleBuyNow}
+          onClick={() => setConfirmingBuyNow(true)}
           className="flex-1 rounded-full bg-clay px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
         >
           Buy now
         </button>
       </div>
+
+      <ConfirmModal
+        open={confirmingBuyNow}
+        title="Proceed to checkout?"
+        message={`You're about to check out ${quantity} × ${plant.name} for ${formatPrice(plant.price_cents * quantity)}.`}
+        confirmLabel="Proceed"
+        onConfirm={confirmBuyNow}
+        onCancel={() => setConfirmingBuyNow(false)}
+      />
     </div>
   );
 }
