@@ -208,37 +208,39 @@ export default function OrderConfirmationPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16 text-center">
-      <span className="font-mono text-xs uppercase tracking-[0.2em] text-sage-deep">
-        {isPaid ? "Order confirmed" : isCancelled ? "Order cancelled" : "Order received"}
-      </span>
-      <h1 className="mt-2 font-display text-3xl italic text-forest">
-        {isPaid
-          ? "Thank you for your order!"
-          : isCancelled
-            ? "This order was cancelled."
-            : "We're confirming your payment…"}
-      </h1>
-      {!isPaid && !isCancelled && (
-        <p className="mt-2 font-body text-sm text-forest/60">
-          This usually only takes a second or two — this page updates on
-          its own, no need to refresh.
-        </p>
-      )}
-      {isCancelled && (
-        <p className="mt-2 font-body text-sm text-forest/60">
-          No payment was taken. If this wasn&apos;t intentional, feel free to
-          try checking out again.
-        </p>
-      )}
+      <div className="no-print">
+        <span className="font-mono text-xs uppercase tracking-[0.2em] text-sage-deep">
+          {isPaid ? "Order confirmed" : isCancelled ? "Order cancelled" : "Order received"}
+        </span>
+        <h1 className="mt-2 font-display text-3xl italic text-forest">
+          {isPaid
+            ? "Thank you for your order!"
+            : isCancelled
+              ? "This order was cancelled."
+              : "We're confirming your payment…"}
+        </h1>
+        {!isPaid && !isCancelled && (
+          <p className="mt-2 font-body text-sm text-forest/60">
+            This usually only takes a second or two — this page updates on
+            its own, no need to refresh.
+          </p>
+        )}
+        {isCancelled && (
+          <p className="mt-2 font-body text-sm text-forest/60">
+            No payment was taken. If this wasn&apos;t intentional, feel free
+            to try checking out again.
+          </p>
+        )}
 
-      {isPaid && (
-        <div className="mt-6 flex justify-center">
-          <MelinaGuide
-            pose="celebrating"
-            message="Yay, your plants are on their way! I'll be here if you need care tips."
-          />
-        </div>
-      )}
+        {isPaid && (
+          <div className="mt-6 flex justify-center">
+            <MelinaGuide
+              pose="celebrating"
+              message="Yay, your plants are on their way! I'll be here if you need care tips."
+            />
+          </div>
+        )}
+      </div>
 
       <div
         id="receipt-printable"
@@ -306,7 +308,7 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <div className="no-print mt-8 flex flex-wrap items-center justify-center gap-4">
         <Link
           href="/shop"
           className="inline-block rounded-full bg-clay px-8 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
@@ -325,7 +327,7 @@ export default function OrderConfirmationPage() {
       </div>
 
       {isGuest && (
-        <div className="mt-10 rounded-2xl border border-forest/10 bg-bg-soft p-6">
+        <div className="no-print mt-10 rounded-2xl border border-forest/10 bg-bg-soft p-6">
           <h2 className="font-display text-lg text-forest">
             Want to keep track of future orders?
           </h2>

@@ -66,23 +66,18 @@ textarea:focus-visible {
   animation: leaf-burst 0.7s ease-out forwards;
 }
 
-/* Order receipt printing (see app/order-confirmation/[id]/page.tsx) — the
-   standard "print only this element" trick: hide everything, then
-   re-reveal just the receipt block and pull it to the top of the page. */
+/* Order receipt printing (see app/order-confirmation/[id]/page.tsx).
+   Deliberately display:none rather than visibility:hidden — visibility
+   hides content but leaves its layout space behind, which left a mostly
+   blank second page (the browser still paginated for the full-height
+   original layout, just invisible). display:none actually collapses
+   that space, so the printed page is sized to the receipt alone. Only
+   the header/footer chrome and anything marked .no-print get hidden —
+   the receipt block itself is never touched, so its own internal
+   layout (flex rows, etc.) isn't at risk of being reset along with it. */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  #receipt-printable,
-  #receipt-printable * {
-    visibility: visible;
-  }
-  #receipt-printable {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
+  header,
+  footer,
   .no-print {
     display: none !important;
   }
