@@ -13,6 +13,7 @@ import {
   type CartItem,
 } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/format";
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
 import ConfirmModal from "@/components/ConfirmModal";
 import MelinaGuide from "@/components/MelinaGuide";
 
@@ -163,6 +164,17 @@ function CartLineItem({
 
 export default function CartPage() {
   const router = useRouter();
+  const isAdmin = useIsAdmin();
+
+  // An admin account never adds anything to the cart (the button doesn't
+  // even render for it), so the only way to land here is a stale cart
+  // from before the account became admin, or a direct URL visit — either
+  // way, bounce back to the dashboard rather than show a cart that was
+  // never meant to be checked out.
+  useEffect(() => {
+    if (isAdmin) router.replace("/admin");
+  }, [isAdmin, router]);
+
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const setAllSelected = useCartStore((state) => state.setAllSelected);

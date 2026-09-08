@@ -12,6 +12,7 @@ import {
 import { formatPrice } from "@/lib/format";
 import { getStripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/client";
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
 import { takeBuyNowItem } from "@/lib/buyNow";
 
 const cardElementOptions = {
@@ -30,8 +31,16 @@ function CheckoutForm() {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  const isAdmin = useIsAdmin();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
+
+  // Same reasoning as the cart page: an admin account has no legitimate
+  // path to checkout (no Add to cart/Buy now buttons render for it), so
+  // reaching this page at all means a stale cart or a direct URL visit.
+  useEffect(() => {
+    if (isAdmin) router.replace("/admin");
+  }, [isAdmin, router]);
 
   // A "Buy now" purchase is a standalone item, completely separate from
   // whatever's selected in the cart — takeBuyNowItem() is one-time-use

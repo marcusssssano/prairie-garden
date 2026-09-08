@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Plant } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { useCartStore, cartTotalItems, maxQuantityForItem } from "@/lib/store/cart";
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
 import AddToCartModal from "@/components/AddToCartModal";
 
 // Shown in place of a photo until we have real product images.
@@ -46,6 +47,7 @@ export default function PlantCard({ plant }: { plant: Plant }) {
   const maxForThisPlant = maxQuantityForItem(plant.stock, otherItemsTotal);
   const atMax = quantityInCart >= maxForThisPlant;
   const [modalOpen, setModalOpen] = useState(false);
+  const isAdmin = useIsAdmin();
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -93,28 +95,32 @@ export default function PlantCard({ plant }: { plant: Plant }) {
               </span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={outOfStock || atMax}
-            className="mt-3 w-full rounded-full border border-sage-deep px-3 py-1.5 font-body text-sm text-sage-deep transition-colors hover:bg-sage-deep hover:text-white disabled:cursor-not-allowed disabled:border-forest/15 disabled:text-forest/30 disabled:hover:bg-transparent"
-          >
-            {outOfStock
-              ? "Sold out"
-              : atMax
-                ? quantityInCart >= plant.stock
-                  ? "All available in your cart"
-                  : "Cart limit reached"
-                : "Add to cart"}
-          </button>
+          {!isAdmin && (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={outOfStock || atMax}
+              className="mt-3 w-full rounded-full border border-sage-deep px-3 py-1.5 font-body text-sm text-sage-deep transition-colors hover:bg-sage-deep hover:text-white disabled:cursor-not-allowed disabled:border-forest/15 disabled:text-forest/30 disabled:hover:bg-transparent"
+            >
+              {outOfStock
+                ? "Sold out"
+                : atMax
+                  ? quantityInCart >= plant.stock
+                    ? "All available in your cart"
+                    : "Cart limit reached"
+                  : "Add to cart"}
+            </button>
+          )}
         </div>
       </Link>
 
-      <AddToCartModal
-        plant={plant}
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {!isAdmin && (
+        <AddToCartModal
+          plant={plant}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 }

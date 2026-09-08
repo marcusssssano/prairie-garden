@@ -10,10 +10,12 @@ import {
 } from "@/lib/store/cart";
 import { setBuyNowItem } from "@/lib/buyNow";
 import { formatPrice } from "@/lib/format";
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
 import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AddToCartControl({ plant }: { plant: Plant }) {
   const router = useRouter();
+  const isAdmin = useIsAdmin();
   const outOfStock = plant.stock <= 0;
   const addItem = useCartStore((state) => state.addItem);
   const quantityInCart = useCartStore(
@@ -69,6 +71,12 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
     });
     setConfirmingBuyNow(false);
     router.push("/checkout");
+  }
+
+  // An admin account manages the store, it doesn't buy from it — no
+  // quantity picker or purchase buttons to get in the way.
+  if (isAdmin) {
+    return null;
   }
 
   if (outOfStock) {
