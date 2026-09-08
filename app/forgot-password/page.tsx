@@ -1,16 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,18 +17,19 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email,
-        password,
-      });
+        { redirectTo: `${window.location.origin}/reset-password` }
+      );
 
-      if (signInError) {
-        setError(signInError.message);
-        return;
+      // Deliberately shown even on error — confirming or denying whether
+      // an email address has an account here would let this form be used
+      // to check who's signed up. Real delivery failures (bad SMTP, rate
+      // limits) are rare enough that this tradeoff is worth it.
+      if (resetError) {
+        // no-op — see comment above
       }
-
-      router.push("/");
-      router.refresh();
+      setSent(true);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -38,11 +37,34 @@ export default function LoginPage() {
     }
   }
 
+  if (sent) {
+    return (
+      <main className="mx-auto max-w-sm px-6 py-20 text-center">
+        <h1 className="font-display text-2xl italic text-forest">
+          Check your inbox
+        </h1>
+        <p className="mt-3 font-body text-sm text-forest/60">
+          If an account exists for {email}, we&apos;ve sent a link to reset
+          your password.
+        </p>
+        <Link
+          href="/login"
+          className="mt-6 inline-block rounded-full bg-clay px-8 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
+        >
+          Back to sign in
+        </Link>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-sm px-6 py-20">
-      <h1 className="font-display text-3xl italic text-forest">Sign in</h1>
+      <h1 className="font-display text-3xl italic text-forest">
+        Reset your password
+      </h1>
       <p className="mt-2 font-body text-sm text-forest/60">
-        Welcome back to Prairie Garden.
+        Enter your email and we&apos;ll send you a link to set a new
+        password.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -54,25 +76,6 @@ export default function LoginPage() {
             maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
-          />
-        </label>
-        <label className="block font-body text-sm text-forest/70">
-          <span className="flex items-center justify-between">
-            Password
-            <Link
-              href="/forgot-password"
-              className="font-body text-xs text-clay hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </span>
-          <input
-            type="password"
-            required
-            maxLength={128}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
           />
         </label>
@@ -88,14 +91,13 @@ export default function LoginPage() {
           disabled={submitting}
           className="w-full rounded-full bg-clay px-6 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "Signing in…" : "Sign in"}
+          {submitting ? "Sending…" : "Send reset link"}
         </button>
       </form>
 
       <p className="mt-6 font-body text-sm text-forest/60">
-        New here?{" "}
-        <Link href="/signup" className="text-clay hover:underline">
-          Create an account
+        <Link href="/login" className="text-clay hover:underline">
+          Back to sign in
         </Link>
       </p>
     </main>
