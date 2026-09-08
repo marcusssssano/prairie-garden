@@ -65,3 +65,32 @@ textarea:focus-visible {
 .leaf-burst-particle {
   animation: leaf-burst 0.7s ease-out forwards;
 }
+
+/* Order receipt printing (see app/order-confirmation/[id]/page.tsx) — the
+   standard "print only this element" trick: hide everything, then
+   re-reveal just the receipt block and pull it to the top of the page. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt-printable,
+  #receipt-printable * {
+    visibility: visible;
+  }
+  #receipt-printable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}

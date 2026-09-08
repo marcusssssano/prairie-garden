@@ -40,6 +40,10 @@ export default function OrderConfirmationPage() {
   const params = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Whether this order was found via a logged-in session vs. a guest
+  // email lookup — only guests get the "create an account" prompt, since
+  // a logged-in customer already has one.
+  const [isGuest, setIsGuest] = useState(false);
   // Starts true — we always try to auto-locate the order (via session, or
   // a stored guest email) before ever showing the manual "enter your
   // email" form, so the very first render should be a neutral loading
@@ -84,6 +88,7 @@ export default function OrderConfirmationPage() {
         setOrder(null);
       } else {
         setOrder(data);
+        setIsGuest(true);
         if (data.status === "pending") {
           pollWhilePending(async () => {
             const r = await fetch(`/api/orders/${params.id}`, {
@@ -235,7 +240,23 @@ export default function OrderConfirmationPage() {
         </div>
       )}
 
-      <div className="mt-8 rounded-2xl border border-forest/10 bg-bg-soft p-6 text-left">
+      <div
+        id="receipt-printable"
+        className="mt-8 rounded-2xl border border-forest/10 bg-bg-soft p-6 text-left"
+      >
+        <div className="print-only mb-4 border-b border-forest/10 pb-4">
+          <p className="font-display text-lg italic text-forest">
+            Prairie Garden
+          </p>
+          <p className="font-body text-sm text-forest/60">
+            Receipt — {new Date(order.created_at).toLocaleDateString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+
         <div className="flex items-center justify-between font-body text-sm text-forest/70">
           <span>Order</span>
           <span className="font-mono text-xs text-forest">{order.id}</span>
@@ -285,12 +306,41 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
-      <Link
-        href="/shop"
-        className="mt-8 inline-block rounded-full bg-clay px-8 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
-      >
-        Continue shopping
-      </Link>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <Link
+          href="/shop"
+          className="inline-block rounded-full bg-clay px-8 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
+        >
+          Continue shopping
+        </Link>
+        {isPaid && (
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-block rounded-full border border-forest/20 px-8 py-3 font-body text-sm font-medium text-forest/70 transition-colors hover:border-forest/40 hover:text-forest"
+          >
+            Print receipt
+          </button>
+        )}
+      </div>
+
+      {isGuest && (
+        <div className="mt-10 rounded-2xl border border-forest/10 bg-bg-soft p-6">
+          <h2 className="font-display text-lg text-forest">
+            Want to keep track of future orders?
+          </h2>
+          <p className="mt-1 font-body text-sm text-forest/70">
+            Create an account to see your order history in one place and
+            skip re-entering your details next time you shop.
+          </p>
+          <Link
+            href="/signup"
+            className="mt-4 inline-block rounded-full bg-clay px-6 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-sage-deep"
+          >
+            Create an account
+          </Link>
+        </div>
+      )}
     </main>
   );
 }
