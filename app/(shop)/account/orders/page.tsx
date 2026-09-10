@@ -3,6 +3,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 
+export const metadata = {
+  title: "Your orders — Prairie Garden",
+};
+
 type OrderRow = {
   id: string;
   status: string;

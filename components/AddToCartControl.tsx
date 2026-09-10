@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Plant } from "@/lib/types";
 import {
@@ -28,13 +28,18 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
   const roomLeft = Math.max(maxForThisPlant - quantityInCart, 0);
   const atMax = roomLeft <= 0;
 
-  const [quantity, setQuantity] = useState(1);
+  const [requestedQuantity, setRequestedQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [confirmingBuyNow, setConfirmingBuyNow] = useState(false);
 
-  useEffect(() => {
-    setQuantity((q) => Math.min(Math.max(q, 1), Math.max(roomLeft, 1)));
-  }, [roomLeft]);
+  // Clamped during render rather than synced back through an effect —
+  // roomLeft can shrink while this is on screen (stock edited in admin,
+  // the same plant added from another tab), and deriving keeps the shown
+  // quantity valid without the extra render pass an effect would cost.
+  const quantity = Math.min(
+    Math.max(requestedQuantity, 1),
+    Math.max(roomLeft, 1)
+  );
 
   function addToCart() {
     addItem(
@@ -52,7 +57,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
   function handleAddToCart() {
     addToCart();
     setJustAdded(true);
-    setQuantity(1);
+    setRequestedQuantity(1);
     setTimeout(() => setJustAdded(false), 1500);
   }
 
@@ -110,7 +115,7 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+          onClick={() => setRequestedQuantity(Math.max(1, quantity - 1))}
           disabled={quantity <= 1}
           aria-label="Decrease quantity"
           className="flex h-9 w-9 items-center justify-center rounded-full border border-forest/20 text-forest/70 hover:border-sage-deep hover:text-forest disabled:cursor-not-allowed disabled:opacity-30"
@@ -126,14 +131,14 @@ export default function AddToCartControl({ plant }: { plant: Plant }) {
           onChange={(e) => {
             const parsed = parseInt(e.target.value, 10);
             if (Number.isNaN(parsed)) return;
-            setQuantity(Math.min(Math.max(parsed, 1), roomLeft));
+            setRequestedQuantity(Math.min(Math.max(parsed, 1), roomLeft));
           }}
           aria-label="Quantity"
           className="w-14 rounded-md border border-forest/20 bg-bg px-1 py-1.5 text-center font-mono text-sm text-forest [appearance:textfield] focus:border-sage-deep [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <button
           type="button"
-          onClick={() => setQuantity((q) => Math.min(roomLeft, q + 1))}
+          onClick={() => setRequestedQuantity(Math.min(roomLeft, quantity + 1))}
           disabled={quantity >= roomLeft}
           aria-label="Increase quantity"
           className="flex h-9 w-9 items-center justify-center rounded-full border border-forest/20 text-forest/70 hover:border-sage-deep hover:text-forest disabled:cursor-not-allowed disabled:opacity-30"

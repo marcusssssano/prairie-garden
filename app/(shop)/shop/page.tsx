@@ -5,6 +5,12 @@ import MelinaGuide from "@/components/MelinaGuide";
 import ShopUrlTracker from "@/components/ShopUrlTracker";
 import type { Plant } from "@/lib/types";
 
+export const metadata = {
+  title: "Shop all plants — Prairie Garden",
+  description:
+    "Browse every plant in the Prairie Garden collection — filter by category, light needs, and size.",
+};
+
 export default async function ShopPage({
   searchParams,
 }: {

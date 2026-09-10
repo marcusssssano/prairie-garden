@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
+export const metadata = { title: "Orders — Prairie Garden Admin" };
+
 type AdminOrderRow = {
   id: string;
   status: string;

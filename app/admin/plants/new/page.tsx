@@ -1,6 +1,8 @@
 import Link from "next/link";
 import PlantForm from "@/components/admin/PlantForm";
 
+export const metadata = { title: "Add plant — Prairie Garden Admin" };
+
 export default function NewPlantPage() {
   return (
     <div>

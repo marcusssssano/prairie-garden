@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
@@ -19,6 +20,32 @@ function DetailTag({ label, value }: { label: string; value: string }) {
       </span>
     </div>
   );
+}
+
+// Shared links should show the plant, not the generic site title. Falls
+// back rather than throwing — a missing plant is handled by the page's
+// own notFound() below, and metadata shouldn't be what breaks first.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: plant } = await supabase
+    .from("plants")
+    .select("name, description")
+    .eq("id", id)
+    .maybeSingle<Pick<Plant, "name" | "description">>();
+
+  if (!plant) return { title: "Plant not found — Prairie Garden" };
+
+  return {
+    title: `${plant.name} — Prairie Garden`,
+    description:
+      plant.description ??
+      `${plant.name}, available from Prairie Garden.`,
+  };
 }
 
 export default async function PlantDetailPage({

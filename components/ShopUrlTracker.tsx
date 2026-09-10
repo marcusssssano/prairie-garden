@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { LAST_SHOP_URL_KEY } from "@/lib/shopUrl";
+import { setLastShopUrl } from "@/lib/shopUrl";
 
 // Renders nothing — just records the current /shop URL (with filters) so
 // the header's "Shop" link and the plant detail page's "Back to shop"
@@ -13,10 +13,7 @@ export default function ShopUrlTracker() {
 
   useEffect(() => {
     const query = searchParams.toString();
-    sessionStorage.setItem(
-      LAST_SHOP_URL_KEY,
-      query ? `${pathname}?${query}` : pathname
-    );
+    setLastShopUrl(query ? `${pathname}?${query}` : pathname);
   }, [pathname, searchParams]);
 
   return null;

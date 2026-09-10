@@ -28,34 +28,25 @@ function CartLineItem({
 }) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const toggleSelected = useCartStore((state) => state.toggleSelected);
-  const [quantityInput, setQuantityInput] = useState(String(item.quantity));
+  // Holds a value only while the field is actively being typed in; null
+  // the rest of the time, so the store's (clamped) value shows through on
+  // its own. That's what makes +/- clicks and clamped-on-blur values
+  // display correctly without an effect syncing state back and forth.
+  const [draftQuantity, setDraftQuantity] = useState<string | null>(null);
+  const quantityInput = draftQuantity ?? String(item.quantity);
 
   const maxForThisItem = maxQuantityForItem(item.stock, otherItemsTotal);
   const atMax = item.quantity >= maxForThisItem;
   const limitedByStock = atMax && item.quantity >= item.stock;
   const limitedByCartCap = atMax && !limitedByStock;
 
-  // Keep the text input mirrored to the store's (clamped) value —
-  // covers +/- clicks and any clamping from a typed value on blur.
-  useEffect(() => {
-    setQuantityInput(String(item.quantity));
-  }, [item.quantity]);
-
   function commitQuantity(raw: string) {
+    // Dropping the draft first means an unparseable entry simply reverts
+    // to whatever the store holds.
+    setDraftQuantity(null);
     const parsed = parseInt(raw, 10);
-    if (Number.isNaN(parsed)) {
-      setQuantityInput(String(item.quantity));
-      return;
-    }
+    if (Number.isNaN(parsed)) return;
     updateQuantity(item.plantId, parsed);
-    // Reset explicitly — if the clamped result equals the current store
-    // value (e.g. typing 999 when already at the max), the quantity prop
-    // never changes, so the sync effect on it wouldn't otherwise fire.
-    const clamped = Math.min(
-      Math.max(Math.round(parsed), 1),
-      Math.max(maxForThisItem, 1)
-    );
-    setQuantityInput(String(clamped));
   }
 
   return (
@@ -75,6 +66,8 @@ function CartLineItem({
             <img
               src={item.image_url}
               alt={item.name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (
@@ -112,7 +105,7 @@ function CartLineItem({
             min={1}
             max={maxForThisItem}
             value={quantityInput}
-            onChange={(e) => setQuantityInput(e.target.value)}
+            onChange={(e) => setDraftQuantity(e.target.value)}
             onBlur={(e) => commitQuantity(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {

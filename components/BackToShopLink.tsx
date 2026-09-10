@@ -1,20 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { LAST_SHOP_URL_KEY } from "@/lib/shopUrl";
+import { useLastShopUrl } from "@/lib/shopUrl";
 
 // Returns to wherever you were in the shop (filters intact) rather than
 // resetting to a bare, unfiltered /shop — falls back to plain /shop if
 // you arrived here without ever having visited the shop this session
 // (e.g. straight from the homepage's "Featured this week").
 export default function BackToShopLink() {
-  const [href, setHref] = useState("/shop");
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem(LAST_SHOP_URL_KEY);
-    if (stored) setHref(stored);
-  }, []);
+  const href = useLastShopUrl();
 
   return (
     <Link

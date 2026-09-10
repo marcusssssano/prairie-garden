@@ -67,6 +67,8 @@ export default function PlantCard({ plant }: { plant: Plant }) {
             <img
               src={plant.image_url}
               alt={plant.name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
@@ -114,12 +116,8 @@ export default function PlantCard({ plant }: { plant: Plant }) {
         </div>
       </Link>
 
-      {!isAdmin && (
-        <AddToCartModal
-          plant={plant}
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-        />
+      {!isAdmin && modalOpen && (
+        <AddToCartModal plant={plant} onClose={() => setModalOpen(false)} />
       )}
     </>
   );

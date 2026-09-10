@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 
+export const metadata = { title: "Dashboard — Prairie Garden Admin" };
+
 // Matches the "Only N left" threshold used on the shop-facing plant
 // detail page, so "low stock" means the same thing everywhere.
 const LOW_STOCK_THRESHOLD = 5;

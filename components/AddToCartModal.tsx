@@ -9,13 +9,13 @@ import {
   maxQuantityForItem,
 } from "@/lib/store/cart";
 
+// Mounted only while open (see PlantCard) — so it always starts fresh at
+// quantity 1 without an effect resetting state on the way in.
 export default function AddToCartModal({
   plant,
-  open,
   onClose,
 }: {
   plant: Plant;
-  open: boolean;
   onClose: () => void;
 }) {
   const addItem = useCartStore((state) => state.addItem);
@@ -33,19 +33,12 @@ export default function AddToCartModal({
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (open) setQuantity(1);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, [onClose]);
 
   function handleConfirm() {
     addItem(
@@ -84,6 +77,8 @@ export default function AddToCartModal({
               <img
                 src={plant.image_url}
                 alt={plant.name}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             ) : (

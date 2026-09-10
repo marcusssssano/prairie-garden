@@ -28,6 +28,8 @@ export default function MelinaGuide({
       <img
         src={POSE_IMAGES[pose]}
         alt="Melina, your garden guide"
+        loading="lazy"
+        decoding="async"
         className="h-20 w-auto shrink-0 object-contain"
       />
       <div className="relative rounded-2xl rounded-bl-sm bg-bg-soft px-4 py-3">

@@ -4,6 +4,8 @@ import { formatPrice } from "@/lib/format";
 import type { Plant } from "@/lib/types";
 import DeletePlantButton from "@/components/admin/DeletePlantButton";
 
+export const metadata = { title: "Plants — Prairie Garden Admin" };
+
 export default async function AdminPlantsPage() {
   const supabase = await createClient();
   const { data: plants, error } = await supabase
@@ -55,6 +57,8 @@ export default async function AdminPlantsPage() {
                         <img
                           src={plant.image_url}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                       ) : (

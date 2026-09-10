@@ -1,29 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
 import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
-import { LAST_SHOP_URL_KEY } from "@/lib/shopUrl";
+import { useLastShopUrl } from "@/lib/shopUrl";
 
 export default function SiteHeader() {
   const router = useRouter();
-  const pathname = usePathname();
   const distinctItems = useCartStore((state) => state.items.length);
   const [user, setUser] = useState<User | null>(null);
   const isAdmin = useIsAdmin();
-  const [shopHref, setShopHref] = useState("/shop");
-
-  // Re-read on every route change — this picks up filters from the last
-  // time you were on the shop grid. Always the grid, never a specific
-  // plant, and the link always just says "Shop".
-  useEffect(() => {
-    const stored = sessionStorage.getItem(LAST_SHOP_URL_KEY);
-    if (stored) setShopHref(stored);
-  }, [pathname]);
+  // Picks up filters from the last time you were on the shop grid, and
+  // updates live as the tracker records new ones. Always the grid, never
+  // a specific plant, and the link always just says "Shop".
+  const shopHref = useLastShopUrl();
 
   useEffect(() => {
     const supabase = createClient();

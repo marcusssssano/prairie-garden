@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { Plant } from "@/lib/types";
 import PlantForm from "@/components/admin/PlantForm";
 
+export const metadata = { title: "Edit plant — Prairie Garden Admin" };
+
 export default async function EditPlantPage({
   params,
 }: {

@@ -72,11 +72,30 @@ export default function SiteFooter() {
             <h3 className="font-mono text-xs uppercase tracking-[0.15em] text-sage">
               Support
             </h3>
-            <ul className="mt-4 space-y-2 font-body text-sm text-bg/70">
-              <li>Contact us</li>
-              <li>Shipping &amp; returns</li>
-              <li>Plant care guides</li>
-              <li>FAQ</li>
+            <ul className="mt-4 space-y-2 font-body text-sm">
+              <li>
+                <Link href="/contact" className="text-bg/70 hover:text-bg">
+                  Contact us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/shipping-returns"
+                  className="text-bg/70 hover:text-bg"
+                >
+                  Shipping &amp; returns
+                </Link>
+              </li>
+              <li>
+                <Link href="/care-guides" className="text-bg/70 hover:text-bg">
+                  Plant care guides
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-bg/70 hover:text-bg">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -96,8 +115,12 @@ export default function SiteFooter() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-bg/10 pt-6 font-body text-xs text-bg/50 sm:flex-row">
           <span>© 2026 Prairie Garden. All rights reserved.</span>
           <div className="flex gap-5">
-            <span>Privacy policy</span>
-            <span>Terms of service</span>
+            <Link href="/privacy" className="hover:text-bg/80">
+              Privacy policy
+            </Link>
+            <Link href="/terms" className="hover:text-bg/80">
+              Terms of service
+            </Link>
           </div>
         </div>
       </div>
