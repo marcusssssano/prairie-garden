@@ -112,6 +112,13 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
           />
+          {/* The FAQ and privacy pages say this too, but someone signing up
+              may never have opened either — and this is the moment the
+              choice actually gets made. */}
+          <span className="mt-1 block font-body text-xs text-forest/50">
+            Prairie Garden is a demo project — please pick something you
+            don&apos;t use on other sites.
+          </span>
         </label>
 
         {error && (
