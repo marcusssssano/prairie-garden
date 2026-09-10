@@ -16,6 +16,12 @@ import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
 import { takeBuyNowItem } from "@/lib/buyNow";
 
 const cardElementOptions = {
+  // The shipping form already asks for a postal code, and Stripe's own
+  // ZIP field sits inside the card iframe where it's easy to miss —
+  // which made "Your postal code is incomplete" read as though it meant
+  // the field further up the page. The address goes to Stripe through
+  // billing_details on confirm instead.
+  hidePostalCode: true,
   style: {
     base: {
       fontSize: "15px",
@@ -152,7 +158,19 @@ function CheckoutForm() {
         {
           payment_method: {
             card: cardElement,
-            billing_details: { name: fullName, email },
+            billing_details: {
+              name: fullName,
+              email,
+              phone: `+63${phone}`,
+              address: {
+                line1,
+                line2: line2 || undefined,
+                city,
+                state: province,
+                postal_code: postalCode,
+                country: "PH",
+              },
+            },
           },
         }
       );
