@@ -44,16 +44,33 @@ function start() {
 
   const supabase = createClient();
 
+  // undefined means "nothing resolved yet", which is distinct from null
+  // ("resolved, and nobody is signed in").
+  let resolvedUserId: string | null | undefined = undefined;
+
   async function resolve(user: User | null) {
+    const userId = user?.id ?? null;
+    // getSession() and onAuthStateChange's INITIAL_SESSION land within a
+    // millisecond of each other, and token refreshes fire later — all
+    // reporting the same person. Only look the profile up when the
+    // identity actually changes.
+    if (userId === resolvedUserId) return;
+    resolvedUserId = userId;
+
     if (!user) {
       emit({ user: null, isAdmin: false, loading: false });
       return;
     }
+
     const { data } = await supabase
       .from("profiles")
       .select("is_admin")
       .eq("id", user.id)
       .maybeSingle();
+
+    // A sign-out (or a switch to another account) mid-request would leave
+    // this response stale — don't let it overwrite the newer identity.
+    if (resolvedUserId !== userId) return;
     emit({ user, isAdmin: data?.is_admin ?? false, loading: false });
   }
 
