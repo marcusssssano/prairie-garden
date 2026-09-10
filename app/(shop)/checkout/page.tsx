@@ -11,8 +11,7 @@ import {
 } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/format";
 import { getStripe } from "@/lib/stripe/client";
-import { createClient } from "@/lib/supabase/client";
-import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { takeBuyNowItem } from "@/lib/buyNow";
 
 const cardElementOptions = {
@@ -37,7 +36,7 @@ function CheckoutForm() {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
-  const isAdmin = useIsAdmin();
+  const { isAdmin, user } = useAuth();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
 
@@ -75,7 +74,11 @@ function CheckoutForm() {
         : selectedCartItems(items);
   const subtotalCents = cartTotalCents(selected);
 
-  const [email, setEmail] = useState("");
+  // null until the visitor types something, so a logged-in user's address
+  // shows through as the default without an effect pushing it into state
+  // (and without overwriting anything they've since typed).
+  const [emailInput, setEmailInput] = useState<string | null>(null);
+  const email = emailInput ?? user?.email ?? "";
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [line1, setLine1] = useState("");
@@ -91,17 +94,6 @@ function CheckoutForm() {
   // retry after a declined card so a fumbled card number doesn't leave a
   // fresh orphaned "pending" order behind every attempt.
   const [session, setSession] = useState<{ orderId: string; clientSecret: string } | null>(null);
-
-  // Logged-in users shouldn't have to retype an email we already know —
-  // only fills it in if they haven't already typed something themselves.
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) {
-        setEmail((current) => current || data.user!.email!);
-      }
-    });
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -224,7 +216,7 @@ function CheckoutForm() {
               required
               maxLength={254}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmailInput(e.target.value)}
               className="mt-1 w-full rounded-lg border border-forest/20 bg-bg px-3 py-2 font-body text-sm text-forest focus:border-sage-deep"
             />
           </label>

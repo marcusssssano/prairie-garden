@@ -10,12 +10,12 @@ import {
 } from "@/lib/store/cart";
 import { setBuyNowItem } from "@/lib/buyNow";
 import { formatPrice } from "@/lib/format";
-import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
+import { useAuth } from "@/lib/hooks/useAuth";
 import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AddToCartControl({ plant }: { plant: Plant }) {
   const router = useRouter();
-  const isAdmin = useIsAdmin();
+  const { isAdmin } = useAuth();
   const outOfStock = plant.stock <= 0;
   const addItem = useCartStore((state) => state.addItem);
   const quantityInCart = useCartStore(

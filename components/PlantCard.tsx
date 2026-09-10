@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { Plant } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { useCartStore, cartTotalItems, maxQuantityForItem } from "@/lib/store/cart";
-import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
+import { useAuth } from "@/lib/hooks/useAuth";
 import AddToCartModal from "@/components/AddToCartModal";
 
 // Shown in place of a photo until we have real product images.
@@ -47,7 +47,7 @@ export default function PlantCard({ plant }: { plant: Plant }) {
   const maxForThisPlant = maxQuantityForItem(plant.stock, otherItemsTotal);
   const atMax = quantityInCart >= maxForThisPlant;
   const [modalOpen, setModalOpen] = useState(false);
-  const isAdmin = useIsAdmin();
+  const { isAdmin } = useAuth();
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();

@@ -2,33 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
-import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useLastShopUrl } from "@/lib/shopUrl";
 
 export default function SiteHeader() {
   const router = useRouter();
   const distinctItems = useCartStore((state) => state.items.length);
-  const [user, setUser] = useState<User | null>(null);
-  const isAdmin = useIsAdmin();
+  const { user, isAdmin } = useAuth();
   // Picks up filters from the last time you were on the shop grid, and
   // updates live as the tracker records new ones. Always the grid, never
   // a specific plant, and the link always just says "Shop".
   const shopHref = useLastShopUrl();
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   async function handleSignOut() {
     const supabase = createClient();

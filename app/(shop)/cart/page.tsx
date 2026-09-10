@@ -13,7 +13,7 @@ import {
   type CartItem,
 } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/format";
-import { useIsAdmin } from "@/lib/hooks/useIsAdmin";
+import { useAuth } from "@/lib/hooks/useAuth";
 import ConfirmModal from "@/components/ConfirmModal";
 import MelinaGuide from "@/components/MelinaGuide";
 
@@ -157,7 +157,7 @@ function CartLineItem({
 
 export default function CartPage() {
   const router = useRouter();
-  const isAdmin = useIsAdmin();
+  const { isAdmin } = useAuth();
 
   // An admin account never adds anything to the cart (the button doesn't
   // even render for it), so the only way to land here is a stale cart
