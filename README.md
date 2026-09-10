@@ -48,6 +48,10 @@ pretending to be global.
 **Melina** — an illustrated garden guide who appears throughout with
 context-appropriate advice.
 
+**Supporting pages** — contact, shipping & returns, care guides, FAQ, and
+legal pages, plus error boundaries, a real 404, `sitemap.xml`, and
+`robots.txt` that keeps crawlers out of the transactional routes.
+
 ## Architecture notes
 
 A few decisions worth calling out, since they're the ones that took thought:
