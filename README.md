@@ -74,6 +74,43 @@ A few decisions worth calling out, since they're the ones that took thought:
 - **Stock decrements atomically** via a SQL function, so two orders
   confirming at once can't lose an update.
 
+## Picking this up on a new machine
+
+If you already have the Supabase, Stripe, and Vercel projects set up (the
+live site is running), this is all you need:
+
+```bash
+git clone https://github.com/marcusssssano/prairie-garden.git
+cd prairie-garden
+npm ci
+```
+
+Then recreate `.env.local` — it's deliberately not in the repo, so it never
+travels with a clone. Copy `.env.example` to `.env.local` and fill in each
+value from where it originates:
+
+| Variable | Recover it from |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY` | Stripe → Developers → API keys (test mode) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe → Developers → Webhooks → the endpoint → Signing secret. For local dev, use the secret printed by `stripe listen` instead. |
+| `CRON_SECRET` | Not recoverable — it's a random string. Generate a new one and set the same value in Vercel, or the daily keep-alive will start returning 401. |
+
+> **Don't rely on `vercel env pull`.** It looks like the obvious shortcut,
+> but Vercel stores these as *sensitive* variables, which are write-only —
+> the pull succeeds but writes the literal text `[SENSITIVE]` in place of
+> every value. Tested; it produces a config that builds but is wired to
+> nothing.
+
+The cheapest insurance is to keep a copy of your working `.env.local` in a
+password manager, so a new machine is a paste rather than a scavenger hunt.
+
+Check it worked with `npm run typecheck && npm run lint`, then `npm run dev`.
+
+Pushing to `main` on GitHub does **not** deploy automatically unless the
+repo is connected to the Vercel project (Vercel → prairie-garden → Settings →
+Git). Until then, ship with `npx vercel --prod`.
+
 ## Running locally
 
 1. **Install**
